@@ -40,17 +40,6 @@
       text-align: center;
     }
 
-    .header h1 {
-      margin: 0;
-      font-weight: 600;
-    }
-
-    .header p {
-      margin-top: 8px;
-      opacity: 0.9;
-      font-size: 14px;
-    }
-
     .content {
       padding: 30px;
       display: grid;
@@ -65,64 +54,39 @@
       border: 1px solid #e5e7eb;
     }
 
-    .card h3 {
-      margin-top: 0;
-      margin-bottom: 15px;
-      font-size: 18px;
-      color: #111827;
-    }
-
     label {
-      display: block;
       font-size: 14px;
       margin-bottom: 6px;
-      color: #374151;
+      display: block;
     }
 
-    input[type="date"],
-    input[type="file"],
-    input[type="text"] {
+    input, textarea {
       width: 100%;
-      padding: 10px 12px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid #d1d5db;
       margin-bottom: 12px;
       font-size: 14px;
     }
 
-    .hint {
-      font-size: 12px;
-      color: #6b7280;
-      margin-bottom: 10px;
-    }
-
     button {
-      width: 100%;
       padding: 12px;
       border-radius: 10px;
       border: none;
       background: #4f46e5;
       color: white;
       font-size: 15px;
-      font-weight: 500;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 8px;
     }
 
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(79,70,229,0.4);
+      background: #4338ca;
     }
 
     textarea {
-      width: 100%;
       height: 220px;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
       resize: none;
-      font-size: 14px;
-      background: #ffffff;
     }
 
     .full {
@@ -131,11 +95,10 @@
 
     pre {
       background: #111827;
-      color: #f9fafb;
+      color: white;
       padding: 12px;
       border-radius: 8px;
       font-size: 13px;
-      overflow-x: auto;
     }
 
     @media (max-width: 768px) {
@@ -145,58 +108,60 @@
     }
   </style>
 </head>
+
 <body>
 
-  <div class="app">
-    <div class="header">
-      <h1>Attendance Message Generator</h1>
-      <p>Upload class list • Enter roll numbers • Download formatted message</p>
-    </div>
+<div class="app">
+  <div class="header">
+    <h1>Attendance Message Generator</h1>
+    <p>Upload CSV • Enter roll numbers • Copy or download message</p>
+  </div>
 
-    <div class="content">
+  <div class="content">
 
-      <div class="card">
-        <h3>Class List (CSV)</h3>
-        <pre>RollNo,Name
+    <div class="card">
+      <h3>CSV Format</h3>
+      <pre>RollNo,Name
 1,Arya
 2,Ravi
 3,Sita
 4,Kumar</pre>
-        <label>Upload CSV File</label>
-        <input type="file" id="csvFile" accept=".csv">
-      </div>
 
-      <div class="card">
-        <h3>Date & Leave Details</h3>
-        <label>Select Date</label>
-        <input type="date" id="dateInput">
-
-        <label>Absent Roll Numbers</label>
-        <input type="text" id="absentRolls" placeholder="e.g. 1,4,7">
-        <div class="hint">Comma separated roll numbers</div>
-
-        <label>OD Roll Numbers</label>
-        <input type="text" id="odRolls" placeholder="e.g. 2,5">
-        <div class="hint">Comma separated roll numbers</div>
-      </div>
-
-      <div class="card full">
-        <button onclick="generateMessage()">Generate Attendance Message</button>
-      </div>
-
-      <div class="card full">
-        <h3>Generated Output</h3>
-        <textarea id="output" readonly></textarea>
-        <br><br>
-        <button onclick="copyText()">Copy Text</button>
-        <br><br>
-        <button onclick="downloadText()">Download Message</button>
-      </div>
-
+      <label>Upload CSV File</label>
+      <input type="file" id="csvFile" accept=".csv">
     </div>
+
+    <div class="card">
+      <h3>Attendance Details</h3>
+
+      <label>Select Date</label>
+      <input type="date" id="dateInput">
+
+      <label>Absent Roll Numbers</label>
+      <input type="text" id="absentRolls" placeholder="e.g. 1,4">
+
+      <label>OD Roll Numbers</label>
+      <input type="text" id="odRolls" placeholder="e.g. 2">
+    </div>
+
+    <div class="card full">
+      <button onclick="generateMessage()">Generate Attendance Message</button>
+    </div>
+
+    <div class="card full">
+      <h3>Generated Message</h3>
+      <textarea id="output" readonly></textarea>
+
+      <button onclick="copyText()">Copy Text</button>
+      <button onclick="downloadText()">Download Text</button>
+    </div>
+
   </div>
+</div>
 
 <script>
+  let students = {};
+
   function generateMessage() {
     const file = document.getElementById('csvFile').files[0];
     const date = document.getElementById('dateInput').value;
@@ -205,29 +170,29 @@
     const output = document.getElementById('output');
 
     if (!file) {
-      alert('Please upload CSV file');
+      alert("Please upload CSV file");
       return;
     }
 
     const reader = new FileReader();
     reader.onload = function(e) {
       const lines = e.target.result.split('\n');
-      let students = {};
+      students = {};
 
       for (let i = 1; i < lines.length; i++) {
-        const data = lines[i].split(',');
-        if (data.length >= 2) {
-          students[data[0].trim()] = data[1].trim();
+        const row = lines[i].split(',');
+        if (row.length >= 2) {
+          students[row[0].trim()] = row[1].trim();
         }
       }
 
-      let absentees = absentRolls.filter(r => students[r]).map(r => students[r]);
-      let ods = odRolls.filter(r => students[r]).map(r => students[r]);
+      const absentees = absentRolls.filter(r => students[r]).map(r => students[r]);
+      const ods = odRolls.filter(r => students[r]).map(r => students[r]);
 
-      let text = "GOOD MORNING\n";
+      let text = "GOOD MORNING\n\n";
       text += "Date: " + date + "\n\n";
-      text += "Absentees:\n" + (absentees.join('\n') || 'None') + "\n\n";
-      text += "OD Students:\n" + (ods.join('\n') || 'None');
+      text += "Absentees:\n" + (absentees.length ? absentees.join('\n') : "None") + "\n\n";
+      text += "OD Students:\n" + (ods.length ? ods.join('\n') : "None");
 
       output.value = text;
     };
@@ -236,30 +201,25 @@
   }
 
   function copyText() {
-    const text = document.getElementById('output');
-    if (!text.value) {
-      alert('Nothing to copy');
+    const output = document.getElementById('output');
+    if (!output.value) {
+      alert("Nothing to copy");
       return;
     }
-    text.select();
-    document.execCommand('copy');
-    alert('Attendance message copied to clipboard');
+    output.select();
+    document.execCommand("copy");
+    alert("Copied to clipboard");
   }
 
   function downloadText() {
     const text = document.getElementById('output').value;
     if (!text) return;
 
-    const blob = new Blob([text], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'attendance_message.txt';
-    a.click();
-  });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'attendance_message.txt';
-    a.click();
+    const blob = new Blob([text], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "attendance_message.txt";
+    link.click();
   }
 </script>
 
