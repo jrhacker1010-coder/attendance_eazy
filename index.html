@@ -191,8 +191,8 @@
 
       let text = "GOOD MORNING\n\n";
       text += "Date: " + date + "\n\n";
-      text += "Absentees:\n" + (absentees.length ? absentees.join('\n') : "None") + "\n\n";
-      text += "OD Students:\n" + (ods.length ? ods.join('\n') : "None");
+      text += "ABSENT STUDENTS:\n\n" + (absentees.length ? absentees.join('\n') : "None") + "\n\n";
+      text += "OD STUDENTS:\n\n" + (ods.length ? ods.join('\n') : "None");
 
       output.value = text;
     };
@@ -225,3 +225,4 @@
 
 </body>
 </html>
+
