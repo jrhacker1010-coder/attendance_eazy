@@ -188,6 +188,8 @@
         <h3>Generated Output</h3>
         <textarea id="output" readonly></textarea>
         <br><br>
+        <button onclick="copyText()">Copy Text</button>
+        <br><br>
         <button onclick="downloadText()">Download Message</button>
       </div>
 
@@ -233,11 +235,27 @@
     reader.readAsText(file);
   }
 
+  function copyText() {
+    const text = document.getElementById('output');
+    if (!text.value) {
+      alert('Nothing to copy');
+      return;
+    }
+    text.select();
+    document.execCommand('copy');
+    alert('Attendance message copied to clipboard');
+  }
+
   function downloadText() {
     const text = document.getElementById('output').value;
     if (!text) return;
 
     const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'attendance_message.txt';
+    a.click();
+  });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'attendance_message.txt';
